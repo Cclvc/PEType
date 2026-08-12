@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -13,18 +13,19 @@
   <header class="navbar">
     <div class="nav-inner">
       <a href="index.html" class="logo"><span class="logo-icon">🐾</span> PEType</a>
-      
     </div>
   </header>
 
   <div class="admin-container">
     <h2>📤 上传新作品</h2>
+    <p>一次可选择 3–5 张照片组成一组作品集</p>
     <div class="msg" id="msg"></div>
     <form class="admin-form" id="uploadForm">
       <div class="form-group">
-        <label>作品图片</label>
-        <input type="file" id="imageInput" accept="image/*" required>
-        <div class="preview-area" id="previewArea"><img id="previewImg" src="" alt="预览"></div>
+        <label>作品图片（3–5 张）</label>
+        <input type="file" id="imageInput" accept="image/*" multiple required>
+        <small style="color:var(--text3);font-size:.8rem">可一次性选择 3–5 张照片</small>
+        <div class="preview-grid" id="previewGrid"></div>
       </div>
       <div class="form-group">
         <label>作品标题</label>
@@ -32,7 +33,7 @@
       </div>
       <div class="form-group">
         <label>作品描述（可选）</label>
-        <textarea id="descInput" placeholder="简短描述这张作品…"></textarea>
+        <textarea id="descInput" placeholder="简短描述这组作品…"></textarea>
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -54,7 +55,7 @@
         </div>
       </div>
       <div class="form-actions">
-        <button type="submit" class="btn btn-primary">上传作品</button>
+        <button type="submit" class="btn btn-primary">上传作品集</button>
         <button type="button" id="exportBtn" class="btn btn-secondary">📋 导出 JSON</button>
       </div>
     </form>
