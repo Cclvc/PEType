@@ -1,0 +1,15 @@
+﻿<view class="page">
+  <view wx:if="{{work}}" class="detail">
+    <view class="detail-head">
+      <view class="back-btn" bindtap="goBack">← 返回</view>
+      <text class="detail-title">{{work.title}}</text>
+      <text class="detail-meta">{{catText}}</text>
+    </view>
+    <view class="detail-imgs">
+      <view wx:for="{{images}}" wx:key="index" class="detail-fig">
+        <image class="detail-img" src="{{item}}" mode="widthFix" data-idx="{{index}}" bindtap="preview" lazy-load="{{true}}"></image>
+        <text class="detail-caption">{{index+1}} / {{images.length}}</text>
+      </view>
+    </view>
+  </view>
+</view>

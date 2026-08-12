@@ -1,0 +1,46 @@
+﻿<view class="page">
+  <view class="hero">
+    <text class="hero-title">旨在记录</text>
+    <text class="hero-sub">记录你与毛孩子之间的每一个温柔瞬间</text>
+  </view>
+
+  <view class="filters">
+    <view class="filter-row">
+      <text class="filter-label">类型</text>
+      <view class="filter-btns">
+        <view class="filter-btn {{mainCat==='all'?'active':''}}" data-cat="all" bindtap="setMainCat">全部</view>
+        <view class="filter-btn {{mainCat==='people-pet'?'active':''}}" data-cat="people-pet" bindtap="setMainCat">🐾 人宠拍摄</view>
+        <view class="filter-btn {{mainCat==='pet-only'?'active':''}}" data-cat="pet-only" bindtap="setMainCat">🐕 只拍毛孩子</view>
+      </view>
+    </view>
+    <view class="filter-row">
+      <text class="filter-label">场景</text>
+      <view class="filter-btns">
+        <view class="filter-btn {{subCat==='all'?'active':''}}" data-cat="all" bindtap="setSubCat">全部</view>
+        <view class="filter-btn {{subCat==='outdoor'?'active':''}}" data-cat="outdoor" bindtap="setSubCat">🏔️ 户外</view>
+        <view class="filter-btn {{subCat==='studio'?'active':''}}" data-cat="studio" bindtap="setSubCat">📸 棚拍</view>
+        <view class="filter-btn {{subCat==='home-visit'?'active':''}}" data-cat="home-visit" bindtap="setSubCat">🚪 上门</view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="status">加载中…</view>
+  <view wx:elif="{{error}}" class="status">{{error}}</view>
+  <view wx:elif="{{filtered.length===0}}" class="status">🐾 暂无作品，敬请期待</view>
+
+  <view wx:else class="grid">
+    <view wx:for="{{filtered}}" wx:key="id" class="card" data-idx="{{index}}" bindtap="onTapWork">
+      <view class="card-img-wrap">
+        <image class="card-img" src="{{item.cover || item.images[0] || item.src}}" mode="aspectFill" lazy-load="{{true}}"></image>
+        <view wx:if="{{item.images.length>1}}" class="card-count">{{item.images.length}} 张</view>
+      </view>
+      <view class="card-info">
+        <text class="card-title">{{item.title}}</text>
+        <view class="card-meta">
+          <text class="card-tag">{{item.mainCat==='people-pet'?'人宠拍摄':item.mainCat==='pet-only'?'只拍毛孩子':item.mainCat}}</text>
+          <text class="card-tag">{{item.subCat==='outdoor'?'户外拍摄':item.subCat==='studio'?'棚拍':item.subCat==='home-visit'?'上门拍摄':item.subCat}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,16 @@
+﻿{
+  "pages": [
+    "pages/index/index",
+    "pages/detail/detail"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#faf7f2",
+    "navigationBarTitleText": "PEType 人宠摄影",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#faf7f2"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

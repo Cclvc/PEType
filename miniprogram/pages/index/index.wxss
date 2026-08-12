@@ -1,0 +1,145 @@
+﻿page {
+  background: #faf7f2;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  color: #2a3027;
+}
+
+.page {
+  min-height: 100vh;
+  padding-bottom: 60rpx;
+}
+
+.hero {
+  padding: 80rpx 40rpx 40rpx;
+  text-align: center;
+}
+
+.hero-title {
+  display: block;
+  font-size: 52rpx;
+  font-weight: 700;
+  color: #4a5c3c;
+  letter-spacing: 2rpx;
+  margin-bottom: 16rpx;
+}
+
+.hero-sub {
+  display: block;
+  font-size: 26rpx;
+  color: #889281;
+}
+
+.filters {
+  padding: 0 24rpx 24rpx;
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+  flex-wrap: wrap;
+}
+
+.filter-label {
+  font-size: 22rpx;
+  color: #889281;
+  margin-right: 12rpx;
+  font-weight: 600;
+}
+
+.filter-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.filter-btn {
+  padding: 10rpx 26rpx;
+  border-radius: 100rpx;
+  border: 1rpx solid #d8ddd2;
+  background: #ffffff;
+  color: #5a6552;
+  font-size: 24rpx;
+}
+
+.filter-btn.active {
+  background: #6b8058;
+  color: #ffffff;
+  border-color: #6b8058;
+  font-weight: 600;
+}
+
+.status {
+  text-align: center;
+  padding: 120rpx 40rpx;
+  color: #889281;
+  font-size: 28rpx;
+}
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 0 20rpx;
+}
+
+.card {
+  width: calc(50% - 24rpx);
+  margin: 12rpx;
+  background: #ffffff;
+  border-radius: 20rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 18rpx rgba(26, 30, 23, 0.08);
+}
+
+.card-img-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  background: #e8ede5;
+}
+
+.card-img {
+  width: 100%;
+  height: 100%;
+}
+
+.card-count {
+  position: absolute;
+  top: 12rpx;
+  right: 12rpx;
+  background: rgba(26, 30, 23, 0.72);
+  color: #fff;
+  font-size: 20rpx;
+  padding: 4rpx 14rpx;
+  border-radius: 100rpx;
+  z-index: 2;
+}
+
+.card-info {
+  padding: 18rpx 20rpx 24rpx;
+  text-align: center;
+}
+
+.card-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 650;
+  color: #2a3027;
+  margin-bottom: 10rpx;
+}
+
+.card-meta {
+  display: flex;
+  justify-content: center;
+  gap: 10rpx;
+  flex-wrap: wrap;
+}
+
+.card-tag {
+  font-size: 20rpx;
+  color: #6b8058;
+  background: #eaf0e5;
+  padding: 4rpx 16rpx;
+  border-radius: 100rpx;
+}
