@@ -124,7 +124,9 @@
     r.setRequestHeader('Content-Type','application/json');
     r.onload=function(){
       if(r.status>=200 && r.status<300){
-        ws[item.wi].images[item.ii]=CDNP+IMGDIR+'/'+name;
+        var newUrl=CDNP+IMGDIR+'/'+name;
+        ws[item.wi].images[item.ii]=newUrl;
+        if(ws[item.wi].cover===item.src){ ws[item.wi].cover=newUrl; }
         next();
       } else if((r.status===409||r.status===422) && attempt<2){
         setTimeout(function(){ putImg(url, token, raw, name, item, next, attempt+1); }, 1200);
@@ -200,11 +202,68 @@
         +'<img src="'+th+'" style="width:56px;height:56px;object-fit:cover;border-radius:10px">'
         +'<div style="flex:1"><strong>'+w.title+' <span style="color:#889281;font-weight:400;font-size:.8rem">'+ct+'张'+(isLocal?' · 待发布':'')+'</span></strong>'
         +'<br><small style="color:#889281">'+(mL[w.mainCat]||w.mainCat)+' · '+(sL[w.subCat]||w.subCat)+'</small></div>'
+        +'<button data-idx="'+i+'" class="edit-btn" style="background:#eef4ff;color:#2563eb;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:500;margin-right:6px">编辑</button>'
         +'<button data-idx="'+i+'" class="del-btn" style="background:#fef2f2;color:#dc2626;border:none;padding:7px 16px;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:500">删除</button></li>';
     }
     wl.innerHTML=h;
+    var es=wl.querySelectorAll('.edit-btn');
+    for(var ei=0;ei<es.length;ei++){ (function(idx){ es[ei].onclick=function(){ editWork(idx); }; })(parseInt(es[ei].dataset.idx)); }
     var ds=wl.querySelectorAll('.del-btn');
     for(var j=0;j<ds.length;j++){ ds[j].onclick=function(){ ws.splice(parseInt(this.dataset.idx),1); ps(); rd(); }; }
+  }
+
+  function editWork(idx){
+    if(!ws[idx]) return;
+    var w=ws[idx];
+    var m=document.createElement('div');
+    m.style.cssText='position:fixed;inset:0;background:rgba(20,24,18,.45);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px';
+    var box=document.createElement('div');
+    box.style.cssText='background:#fdfcf9;border-radius:16px;max-width:640px;width:100%;max-height:86vh;overflow-y:auto;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.3)';
+    var tIn=document.createElement('input');
+    tIn.value=w.title||''; tIn.placeholder='标题';
+    tIn.style.cssText='width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #d8ddd2;border-radius:10px;font-size:1rem;font-family:inherit;margin-bottom:14px';
+    var p=document.createElement('p');
+    p.style.cssText='margin:0 0 8px;font-size:.9rem;color:#5a6352;font-weight:600';
+    p.textContent='选择封面（点击任意一张照片）';
+    var grid=document.createElement('div');
+    grid.style.cssText='display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:10px;margin-bottom:16px';
+    var imgs=Array.isArray(w.images)?w.images:(w.src?[w.src]:[]);
+    var cur=w.cover||imgs[0]||'';
+    imgs.forEach(function(src,ii){
+      var cell=document.createElement('div');
+      cell.style.cssText='position:relative;cursor:pointer;border:3px solid transparent;border-radius:10px;overflow:hidden;aspect-ratio:3/4;background:#eef0ea';
+      cell.innerHTML='<img src="'+src+'" style="width:100%;height:100%;object-fit:cover;display:block">';
+      if(src===cur){ cell.style.borderColor='#2563eb'; }
+      cell.onclick=function(){
+        var cs=grid.querySelectorAll('div');
+        for(var k=0;k<cs.length;k++){ cs[k].style.borderColor='transparent'; }
+        cell.style.borderColor='#2563eb';
+        cur=src;
+      };
+      grid.appendChild(cell);
+    });
+    var row=document.createElement('div');
+    row.style.cssText='display:flex;gap:10px;justify-content:flex-end';
+    var save=document.createElement('button');
+    save.textContent='保存';
+    save.style.cssText='background:#2563eb;color:#fff;border:none;padding:10px 26px;border-radius:10px;cursor:pointer;font-size:.95rem;font-family:inherit;font-weight:600';
+    var cancel=document.createElement('button');
+    cancel.textContent='取消';
+    cancel.style.cssText='background:#eef0ea;color:#3a4234;border:none;padding:10px 22px;border-radius:10px;cursor:pointer;font-size:.95rem;font-family:inherit';
+    cancel.onclick=function(){ m.remove(); };
+    save.onclick=function(){
+      var t2=tIn.value.trim();
+      if(!t2){ n('标题不能为空','error'); return; }
+      w.title=t2; w.cover=cur;
+      ps(); rd(); m.remove();
+      n('已保存，正在自动发布…','');
+      publish();
+    };
+    row.appendChild(cancel); row.appendChild(save);
+    box.appendChild(tIn); box.appendChild(p); box.appendChild(grid); box.appendChild(row);
+    m.appendChild(box);
+    document.body.appendChild(m);
+    m.onclick=function(ev){ if(ev.target===m){ m.remove(); } };
   }
 
   fi.addEventListener('change',pv);

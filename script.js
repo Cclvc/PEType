@@ -36,7 +36,7 @@
     list=n;
     n.forEach(function(x,idx){
       var imgs=imgsOf(x);
-      var cover=imgs[0]||'';
+      var cover=x.cover||imgs[0]||'';
       var o=document.createElement('div');
       o.className='gallery-card';
       o.style.animationDelay=(idx*.08)+'s';
