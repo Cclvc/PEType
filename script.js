@@ -1,14 +1,12 @@
 (function(){
   var mainCat='all', subCat='all';
-  var list=[];        // 当前筛选后的作品数组
-  var current=null;   // 当前灯箱中的作品
-  var imgIdx=0;       // 当前作品内的图片索引
+  var list=[];
+  var current=null;
 
   var gallery=document.getElementById('gallery');
   var empty=document.getElementById('galleryEmpty');
   var lightbox=document.getElementById('lightbox');
-  var lbImg=document.getElementById('lightboxImg');
-  var lbCaption=document.getElementById('lightboxCaption');
+  var lbBody=document.getElementById('lightboxBody');
 
   var mainBtns=document.querySelectorAll('.filter-btn[data-type=main]');
   var subBtns=document.querySelectorAll('.filter-btn[data-type=sub]');
@@ -46,69 +44,42 @@
       o.innerHTML='<div class="card-img-wrap"><img src="'+esc(cover)+'" alt="'+esc(x.title)+'" loading="lazy"><div class="card-overlay"></div>'+countBadge+'</div>'
         +'<div class="card-info"><div class="card-title">'+esc(x.title)+'</div>'
         +'<div class="card-meta"><span class="card-tag">'+catName(x.mainCat)+'</span><span class="card-tag">'+catName(x.subCat)+'</span></div></div>';
-      o.addEventListener('click',function(){ openLightbox(idx); });
+      o.addEventListener('click',function(){ openDetail(idx); });
       gallery.appendChild(o);
     });
   }
 
-  function openLightbox(idx){
+  function openDetail(idx){
     if(!list.length || idx<0 || idx>=list.length) return;
     current=list[idx];
-    imgIdx=0;
-    updateLightbox();
-    buildThumbs();
-    lightbox.classList.add('show');
+    renderDetail();
+    document.body.style.overflow='hidden';
+    lightbox.classList.add('active');
+    lightbox.scrollTop=0;
   }
 
-  function updateLightbox(){
+  function renderDetail(){
     if(!current) return;
     var imgs=imgsOf(current);
-    if(!imgs.length){ lbImg.removeAttribute('src'); lbCaption.textContent=current.title; return; }
-    lbImg.src=imgs[imgIdx];
-    var pos=imgs.length>1?('('+(imgIdx+1)+'/'+imgs.length+') '):'';
-    lbCaption.textContent=pos+current.title+(current.desc?' — '+current.desc:'');
-    markThumbs();
-  }
-
-  function buildThumbs(){
-    var box=document.getElementById('lightboxThumbs');
-    if(!box) return;
-    box.innerHTML='';
-    if(!current) return;
-    var imgs=imgsOf(current);
-    if(imgs.length<2) return;
+    var h='<div class="detail-head">'
+      +'<button class="detail-close" id="detailClose">&times;</button>'
+      +'<h2 class="detail-title">'+esc(current.title)+'</h2>'
+      +'<p class="detail-meta">'+catName(current.mainCat)+' · '+catName(current.subCat)+(current.desc?' — '+esc(current.desc):'')+'</p>'
+      +'</div>';
+    h+='<div class="detail-imgs">';
     imgs.forEach(function(src,i){
-      var t=document.createElement('div');
-      t.className='lb-thumb'+(i===imgIdx?' active':'');
-      t.innerHTML='<img src="'+esc(src)+'" alt="'+(i+1)+'">';
-      t.addEventListener('click',function(){ imgIdx=i; updateLightbox(); });
-      box.appendChild(t);
+      h+='<figure class="detail-fig"><img src="'+esc(src)+'" alt="'+esc(current.title)+' '+(i+1)+'" loading="lazy"><figcaption>'+(i+1)+' / '+imgs.length+'</figcaption></figure>';
     });
+    h+='</div>';
+    lbBody.innerHTML=h;
+    document.getElementById('detailClose').addEventListener('click',closeDetail);
   }
 
-  function markThumbs(){
-    var box=document.getElementById('lightboxThumbs');
-    if(!box) return;
-    var ts=box.querySelectorAll('.lb-thumb');
-    for(var i=0;i<ts.length;i++){ ts[i].className='lb-thumb'+(i===imgIdx?' active':''); }
+  function closeDetail(){
+    lightbox.classList.remove('active');
+    document.body.style.overflow='';
+    current=null;
   }
-
-  function step(delta){
-    if(!current) return;
-    var imgs=imgsOf(current);
-    if(imgs.length>1){
-      imgIdx=(imgIdx+delta+imgs.length)%imgs.length;
-      updateLightbox();
-      return;
-    }
-    var i=list.indexOf(current);
-    var next=i+delta;
-    if(next<0) next=list.length-1;
-    if(next>=list.length) next=0;
-    openLightbox(next);
-  }
-
-  function closeLightbox(){ lightbox.classList.remove('show'); current=null; imgIdx=0; }
 
   mainBtns.forEach(function(btn){
     btn.addEventListener('click',function(){
@@ -127,15 +98,12 @@
     });
   });
 
-  lightbox.querySelector('.lightbox-close').addEventListener('click',closeLightbox);
-  lightbox.addEventListener('click',function(ev){ if(ev.target===lightbox) closeLightbox(); });
-  document.getElementById('lightboxPrev').addEventListener('click',function(ev){ ev.stopPropagation(); step(-1); });
-  document.getElementById('lightboxNext').addEventListener('click',function(ev){ ev.stopPropagation(); step(1); });
+  lightbox.addEventListener('click',function(ev){
+    if(ev.target===lightbox) closeDetail();
+  });
   document.addEventListener('keydown',function(ev){
-    if(!lightbox.classList.contains('show')) return;
-    if(ev.key==='Escape') closeLightbox();
-    if(ev.key==='ArrowLeft') step(-1);
-    if(ev.key==='ArrowRight') step(1);
+    if(!lightbox.classList.contains('active')) return;
+    if(ev.key==='Escape') closeDetail();
   });
 
   var CDNS=["works.json?t="+Date.now(),"https://cdn.jsdelivr.net/gh/Cclvc/PEType@main/works.json?t="+Date.now()];
