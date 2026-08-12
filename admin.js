@@ -1,19 +1,23 @@
 (function(){
-  var SK='petype_works', TOK='petype_token', REPO='Cclvc/PEType', BRANCH='main', FILE='works.json';
+  var SK='petype_works', TOK='petype_token', REPO='Cclvc/PEType', BRANCH='main', FILE='works.json', IMGDIR='images';
+  var CDNP='https://cdn.jsdelivr.net/gh/'+REPO+'@'+BRANCH+'/';
   var msg=document.getElementById('msg'), fi=document.getElementById('imageInput'), pg=document.getElementById('previewGrid'),
       ti=document.getElementById('titleInput'), di=document.getElementById('descInput'),
       mc=document.getElementById('mainCatSelect'), sc=document.getElementById('subCatSelect'),
       wl=document.getElementById('workList'), eb=document.getElementById('exportBtn'),
       pb=document.getElementById('publishBtn'), tk=document.getElementById('tokenInput'),
       ap=document.getElementById('autoPub');
-  var ws=[], MAX_EDGE=1600, QUALITY=0.85, BIG=350000;
+  var ws=[], MAX_EDGE=1200, QUALITY=0.72, publishing=false;
 
-  function n(t,c){ msg.textContent=t; msg.className='msg '+c; setTimeout(function(){ msg.className='msg'; },4000); }
+  function n(t,c){
+    msg.textContent=t; msg.className='msg '+c;
+    setTimeout(function(){ msg.className='msg'; },4000);
+  }
 
   function ps(){
     try{ localStorage.setItem(SK, JSON.stringify(ws)); }
     catch(e){
-      if(e && e.name==='QuotaExceededError'){ n('保存失败：照片太大超出浏览器存储上限，请少选几张或换小图','error'); }
+      if(e && e.name==='QuotaExceededError'){ n('保存失败：空间不足，请点发布把图片传到 GitHub','error'); }
       else{ n('保存失败：'+e.message,'error'); }
     }
   }
@@ -28,12 +32,10 @@
     var img=new Image();
     img.onload=function(){
       var w=img.width,h=img.height,s=Math.min(1, MAX_EDGE/Math.max(w,h));
-      if(s>=1 && dataUrl.length<BIG){ cb(dataUrl); return; }
       var c=document.createElement('canvas');
       c.width=Math.max(1,Math.round(w*s)); c.height=Math.max(1,Math.round(h*s));
       c.getContext('2d').drawImage(img,0,0,c.width,c.height);
-      var out=c.toDataURL('image/jpeg',QUALITY);
-      cb(out.length<dataUrl.length?out:dataUrl);
+      cb(c.toDataURL('image/jpeg',QUALITY));
     };
     img.onerror=function(){ cb(dataUrl); };
     img.src=dataUrl;
@@ -44,34 +46,6 @@
     if(s){ try{ ws=JSON.parse(s); if(!Array.isArray(ws)) ws=[]; }catch(e){ ws=[]; } }
     if(tk && !tk.value){ try{ tk.value=localStorage.getItem(TOK)||''; }catch(e){} }
     rd();
-    var x=new XMLHttpRequest();
-    x.open('GET', FILE+'?t='+Date.now(), true);
-    x.onload=function(){
-      try{
-        var d=JSON.parse(x.responseText);
-        if(Array.isArray(d)&&d.length){
-          var ids={}; ws.forEach(function(w){ if(w&&w.id!=null) ids[w.id]=true; });
-          var add=0;
-          d.forEach(function(w){ if(w&&w.id!=null&&!ids[w.id]){ ws.push(w); add++; } });
-          if(add){ ps(); rd(); }
-        }
-      }catch(e){}
-    };
-    x.send();
-    compressOld();
-  }
-
-  function compressOld(){
-    var changed=false, pending=0;
-    ws.forEach(function(w){
-      if(!w || !Array.isArray(w.images)) return;
-      w.images.forEach(function(src,i){
-        if(typeof src==='string' && src.length>BIG){
-          pending++; changed=true;
-          (function(w,i){ shrink(src,function(out){ w.images[i]=out; pending--; if(pending===0&&changed){ ps(); rd(); } }); })(w,i);
-        }
-      });
-    });
   }
 
   function pv(){
@@ -92,13 +66,14 @@
 
   function up(){
     var f=fi.files; if(!f||!f.length){ n('请先选择照片','error'); return; }
-    var imgs=[], cnt=0, ttl=ti.value.trim(), dsc=di.value.trim(), ma=mc.value, su=sc.value;
+    var ttl=ti.value.trim(), dsc=di.value.trim(), ma=mc.value, su=sc.value;
+    var imgs=[], cnt=0;
     function nxt(){
       if(cnt>=f.length){
         ws.unshift({id:Date.now(), title:ttl, desc:dsc, mainCat:ma, subCat:su, images:imgs});
         ps(); rd();
         ti.value=''; di.value=''; mc.value=''; sc.value=''; fi.value=''; pg.innerHTML='';
-        n('上传成功 ('+imgs.length+' 张，已自动压缩)','success');
+        n('上传成功 ('+imgs.length+' 张，已压缩)','success');
         if(ap && ap.checked){ publish(); }
         return;
       }
@@ -112,20 +87,62 @@
     nxt();
   }
 
-    var publishing=false;
   function publish(){
     if(!ws.length){ n('还没有作品，无法发布','error'); return; }
-    if(publishing){ return; }
+    if(publishing) return;
     var token=(tk&&tk.value?tk.value.trim():'');
     if(!token){ n('请先填写 GitHub Token','error'); if(tk) tk.focus(); return; }
     try{ localStorage.setItem(TOK, token); }catch(e){}
     publishing=true;
-    n('正在发布到 GitHub…','');
-    var url='https://api.github.com/repos/'+REPO+'/contents/'+FILE;
-    doPublish(url, token, 0);
+    var pending=[];
+    ws.forEach(function(w,wi){
+      if(!w || !Array.isArray(w.images)) return;
+      w.images.forEach(function(src,ii){
+        if(typeof src==='string' && src.indexOf('data:')===0){ pending.push({wi:wi, ii:ii, src:src}); }
+      });
+    });
+    if(!pending.length){ doPublishJson(token,0); return; }
+    uploadAll(pending,0,token,function(){ ps(); doPublishJson(token,0); });
   }
 
-  function doPublish(url, token, attempt){
+  function uploadAll(pending,k,token,done){
+    if(k>=pending.length){ done(); return; }
+    var item=pending[k];
+    n('正在上传图片 '+(k+1)+'/'+pending.length+'…','');
+    var ext=item.src.indexOf('image/png')>=0?'png':'jpg';
+    var name='p'+Date.now()+'_'+Math.floor(Math.random()*1000)+'_'+(k+1)+'.'+ext;
+    var url='https://api.github.com/repos/'+REPO+'/contents/'+IMGDIR+'/'+name;
+    putImg(url, token, item.src.split(',')[1], name, item, function(){ uploadAll(pending,k+1,token,done); }, 0);
+  }
+
+  function putImg(url, token, raw, name, item, next, attempt){
+    var body={ message:'上传图片 '+name, content:raw, branch:BRANCH };
+    var r=new XMLHttpRequest();
+    r.open('PUT',url,true);
+    r.setRequestHeader('Authorization','Bearer '+token);
+    r.setRequestHeader('Accept','application/vnd.github+json');
+    r.setRequestHeader('Content-Type','application/json');
+    r.onload=function(){
+      if(r.status>=200 && r.status<300){
+        ws[item.wi].images[item.ii]=CDNP+IMGDIR+'/'+name;
+        next();
+      } else if((r.status===409||r.status===422) && attempt<2){
+        setTimeout(function(){ putImg(url, token, raw, name, item, next, attempt+1); }, 1200);
+      } else {
+        publishing=false;
+        var em=''; try{ em=JSON.parse(r.responseText).message; }catch(e){}
+        n('图片上传失败 ('+r.status+')：'+em,'error');
+      }
+    };
+    r.onerror=function(){
+      if(attempt<2){ setTimeout(function(){ putImg(url, token, raw, name, item, next, attempt+1); }, 1200); }
+      else{ publishing=false; n('图片上传失败：网络错误','error'); }
+    };
+    r.send(JSON.stringify(body));
+  }
+
+  function doPublishJson(token, attempt){
+    var url='https://api.github.com/repos/'+REPO+'/contents/'+FILE;
     var get=new XMLHttpRequest();
     get.open('GET', url+'?ref='+BRANCH+'&t='+Date.now(), true);
     get.setRequestHeader('Authorization','Bearer '+token);
@@ -137,16 +154,15 @@
         n('发布失败：无法获取当前版本 ('+get.status+') '+em,'error');
         return;
       }
-      var sha=null;
-      try{ sha=JSON.parse(get.responseText).sha; }catch(e){}
+      var sha=null; try{ sha=JSON.parse(get.responseText).sha; }catch(e){}
       if(!sha){ publishing=false; n('发布失败：GitHub 未返回版本信息','error'); return; }
-      putFile(url, token, sha, attempt);
+      putJson(url, token, sha, attempt);
     };
     get.onerror=function(){ publishing=false; n('发布失败：网络错误，请检查网络/梯子','error'); };
     get.send();
   }
 
-  function putFile(url, token, sha, attempt){
+  function putJson(url, token, sha, attempt){
     var body={ message:'发布作品 '+new Date().toLocaleString(), content:b64(JSON.stringify(ws,null,2)), branch:BRANCH, sha:sha };
     var r=new XMLHttpRequest();
     r.open('PUT', url, true);
@@ -154,11 +170,8 @@
     r.setRequestHeader('Accept','application/vnd.github+json');
     r.setRequestHeader('Content-Type','application/json');
     r.onload=function(){
-      if(r.status>=200&&r.status<300){ publishing=false; n('发布成功！主页 1-2 分钟后自动更新','success'); }
-      else if(r.status===409 && attempt<2){
-        n('检测到版本变化，正在重试…','');
-        doPublish(url, token, attempt+1);
-      }
+      if(r.status>=200 && r.status<300){ publishing=false; n('发布成功！主页 1-2 分钟后自动更新','success'); }
+      else if(r.status===409 && attempt<2){ n('检测到版本变化，正在重试…',''); doPublishJson(token, attempt+1); }
       else{
         publishing=false;
         var em=''; try{ em=JSON.parse(r.responseText).message; }catch(e){}
@@ -168,7 +181,8 @@
     r.onerror=function(){ publishing=false; n('发布失败：网络错误，请检查网络','error'); };
     r.send(JSON.stringify(body));
   }
-function ex(){
+
+  function ex(){
     if(!ws.length){ n('还没有作品','error'); return; }
     var b=new Blob([JSON.stringify(ws,null,2)],{type:'application/json'});
     var a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='works.json'; a.click();
@@ -181,9 +195,10 @@ function ex(){
     var h='', mL={'people-pet':'人宠拍摄','pet-only':'只拍毛孩子'}, sL={outdoor:'户外拍摄',studio:'棚拍','home-visit':'上门拍摄'};
     for(var i=0;i<ws.length;i++){
       var w=ws[i], th=Array.isArray(w.images)?w.images[0]:w.src, ct=Array.isArray(w.images)?w.images.length:1;
+      var isLocal=th&&th.indexOf('data:')===0;
       h+='<li style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:#fff;border-radius:12px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.04);border:1px solid #d8ddd2">'
         +'<img src="'+th+'" style="width:56px;height:56px;object-fit:cover;border-radius:10px">'
-        +'<div style="flex:1"><strong>'+w.title+' <span style="color:#889281;font-weight:400;font-size:.8rem">'+ct+'张</span></strong>'
+        +'<div style="flex:1"><strong>'+w.title+' <span style="color:#889281;font-weight:400;font-size:.8rem">'+ct+'张'+(isLocal?' · 待发布':'')+'</span></strong>'
         +'<br><small style="color:#889281">'+(mL[w.mainCat]||w.mainCat)+' · '+(sL[w.subCat]||w.subCat)+'</small></div>'
         +'<button data-idx="'+i+'" class="del-btn" style="background:#fef2f2;color:#dc2626;border:none;padding:7px 16px;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:500">删除</button></li>';
     }
