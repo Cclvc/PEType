@@ -112,46 +112,63 @@
     nxt();
   }
 
+    var publishing=false;
   function publish(){
     if(!ws.length){ n('还没有作品，无法发布','error'); return; }
+    if(publishing){ return; }
     var token=(tk&&tk.value?tk.value.trim():'');
     if(!token){ n('请先填写 GitHub Token','error'); if(tk) tk.focus(); return; }
     try{ localStorage.setItem(TOK, token); }catch(e){}
+    publishing=true;
     n('正在发布到 GitHub…','');
     var url='https://api.github.com/repos/'+REPO+'/contents/'+FILE;
+    doPublish(url, token, 0);
+  }
+
+  function doPublish(url, token, attempt){
     var get=new XMLHttpRequest();
-    get.open('GET', url+'?ref='+BRANCH, true);
+    get.open('GET', url+'?ref='+BRANCH+'&t='+Date.now(), true);
     get.setRequestHeader('Authorization','Bearer '+token);
     get.setRequestHeader('Accept','application/vnd.github+json');
     get.onload=function(){
+      if(get.status!==200){
+        publishing=false;
+        var em=''; try{ em=JSON.parse(get.responseText).message; }catch(e){}
+        n('发布失败：无法获取当前版本 ('+get.status+') '+em,'error');
+        return;
+      }
       var sha=null;
-      if(get.status===200){ try{ sha=JSON.parse(get.responseText).sha; }catch(e){} }
-      put(sha);
+      try{ sha=JSON.parse(get.responseText).sha; }catch(e){}
+      if(!sha){ publishing=false; n('发布失败：GitHub 未返回版本信息','error'); return; }
+      putFile(url, token, sha, attempt);
     };
-    get.onerror=function(){ n('发布失败：网络错误，请检查网络/梯子','error'); };
+    get.onerror=function(){ publishing=false; n('发布失败：网络错误，请检查网络/梯子','error'); };
     get.send();
-
-    function put(sha){
-      var body={ message:'发布作品 '+new Date().toLocaleString(), content:b64(JSON.stringify(ws,null,2)), branch:BRANCH };
-      if(sha){ body.sha=sha; }
-      var r=new XMLHttpRequest();
-      r.open('PUT', url, true);
-      r.setRequestHeader('Authorization','Bearer '+token);
-      r.setRequestHeader('Accept','application/vnd.github+json');
-      r.setRequestHeader('Content-Type','application/json');
-      r.onload=function(){
-        if(r.status>=200&&r.status<300){ n('发布成功！主页 1-2 分钟后自动更新','success'); }
-        else{
-          var em=''; try{ em=JSON.parse(r.responseText).message; }catch(e){}
-          n('发布失败 ('+r.status+')：'+em,'error');
-        }
-      };
-      r.onerror=function(){ n('发布失败：网络错误，请检查网络','error'); };
-      r.send(JSON.stringify(body));
-    }
   }
 
-  function ex(){
+  function putFile(url, token, sha, attempt){
+    var body={ message:'发布作品 '+new Date().toLocaleString(), content:b64(JSON.stringify(ws,null,2)), branch:BRANCH, sha:sha };
+    var r=new XMLHttpRequest();
+    r.open('PUT', url, true);
+    r.setRequestHeader('Authorization','Bearer '+token);
+    r.setRequestHeader('Accept','application/vnd.github+json');
+    r.setRequestHeader('Content-Type','application/json');
+    r.onload=function(){
+      if(r.status>=200&&r.status<300){ publishing=false; n('发布成功！主页 1-2 分钟后自动更新','success'); }
+      else if(r.status===409 && attempt<2){
+        n('检测到版本变化，正在重试…','');
+        doPublish(url, token, attempt+1);
+      }
+      else{
+        publishing=false;
+        var em=''; try{ em=JSON.parse(r.responseText).message; }catch(e){}
+        n('发布失败 ('+r.status+')：'+em,'error');
+      }
+    };
+    r.onerror=function(){ publishing=false; n('发布失败：网络错误，请检查网络','error'); };
+    r.send(JSON.stringify(body));
+  }
+function ex(){
     if(!ws.length){ n('还没有作品','error'); return; }
     var b=new Blob([JSON.stringify(ws,null,2)],{type:'application/json'});
     var a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='works.json'; a.click();
