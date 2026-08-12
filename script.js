@@ -138,14 +138,21 @@
     if(ev.key==='ArrowRight') step(1);
   });
 
-  var r=new XMLHttpRequest();
-  r.open('GET','works.json?t='+Date.now(),true);
-  r.onload=function(){
-    if(r.status>=200&&r.status<300){
-      try{ window.worksData=JSON.parse(r.responseText); }catch(e){ window.worksData=[]; }
-    }else{ window.worksData=[]; }
-    render();
-  };
-  r.onerror=function(){ window.worksData=[]; render(); };
-  r.send();
+  var CDNS=["https://cdn.jsdelivr.net/gh/Cclvc/PEType@main/works.json","works.json?t="+Date.now()];
+  var ri=0;
+  function loadWorks(){
+    if(ri>=CDNS.length){ window.worksData=[]; render(); return; }
+    var r=new XMLHttpRequest();
+    r.open('GET', CDNS[ri], true);
+    r.onerror=function(){ ri++; loadWorks(); };
+    r.onload=function(){
+      if(r.status>=200 && r.status<300){
+        try{ window.worksData=JSON.parse(r.responseText); }catch(e){ window.worksData=[]; }
+        if(window.worksData && window.worksData.length){ render(); return; }
+      }
+      ri++; loadWorks();
+    };
+    r.send();
+  }
+  loadWorks();
 })();
