@@ -56,6 +56,7 @@
     current=list[idx];
     imgIdx=0;
     updateLightbox();
+    buildThumbs();
     lightbox.classList.add('show');
   }
 
@@ -66,6 +67,30 @@
     lbImg.src=imgs[imgIdx];
     var pos=imgs.length>1?('('+(imgIdx+1)+'/'+imgs.length+') '):'';
     lbCaption.textContent=pos+current.title+(current.desc?' — '+current.desc:'');
+    markThumbs();
+  }
+
+  function buildThumbs(){
+    var box=document.getElementById('lightboxThumbs');
+    if(!box) return;
+    box.innerHTML='';
+    if(!current) return;
+    var imgs=imgsOf(current);
+    if(imgs.length<2) return;
+    imgs.forEach(function(src,i){
+      var t=document.createElement('div');
+      t.className='lb-thumb'+(i===imgIdx?' active':'');
+      t.innerHTML='<img src="'+esc(src)+'" alt="'+(i+1)+'">';
+      t.addEventListener('click',function(){ imgIdx=i; updateLightbox(); });
+      box.appendChild(t);
+    });
+  }
+
+  function markThumbs(){
+    var box=document.getElementById('lightboxThumbs');
+    if(!box) return;
+    var ts=box.querySelectorAll('.lb-thumb');
+    for(var i=0;i<ts.length;i++){ ts[i].className='lb-thumb'+(i===imgIdx?' active':''); }
   }
 
   function step(delta){
