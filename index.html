@@ -5,32 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PEType — 人宠摄影作品集</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&display=swap" rel="stylesheet">
 </head>
 <body>
   <header class="navbar">
     <div class="nav-inner">
-      <a href="index.html" class="logo">🐾 PEType</a>
-      <nav class="nav-links">
-        <a href="index.html" class="active">作品集</a>
-        <a href="admin.html">🎛️ 管理后台</a>
-      </nav>
+      <a href="index.html" class="logo"><span class="logo-icon">🐾</span> PEType</a>
     </div>
   </header>
 
   <section class="hero">
-    <h1>人宠摄影</h1>
-    <p>记录你与毛孩子的美好瞬间</p>
+    <h1>用镜头定格<br>毛茸茸的幸福</h1>
+    <p>记录你与毛孩子之间的每一个温柔瞬间 — 户外、棚拍或上门，随时随地</p>
   </section>
 
   <section class="filters-container">
     <div class="filter-group">
-      <span class="filter-label">大类：</span>
+      <span class="filter-label">类型</span>
       <button class="filter-btn active" data-cat="all" data-type="main">全部</button>
       <button class="filter-btn" data-cat="people-pet" data-type="main">🐾 人宠拍摄</button>
       <button class="filter-btn" data-cat="pet-only" data-type="main">🐕 只拍毛孩子</button>
     </div>
     <div class="filter-group">
-      <span class="filter-label">小类：</span>
+      <span class="filter-label">场景</span>
       <button class="filter-btn active" data-cat="all" data-type="sub">全部</button>
       <button class="filter-btn" data-cat="outdoor" data-type="sub">🏔️ 户外拍摄</button>
       <button class="filter-btn" data-cat="studio" data-type="sub">📸 棚拍</button>
@@ -40,7 +39,7 @@
 
   <section class="gallery" id="gallery">
     <div class="gallery-empty" id="galleryEmpty" style="display:none;">
-      <p>😺 暂无符合筛选条件的作品</p>
+      <p>🐾 暂无作品，敬请期待</p>
     </div>
   </section>
 
