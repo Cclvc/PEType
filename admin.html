@@ -60,6 +60,18 @@
         <button type="button" id="exportBtn" class="btn btn-secondary">📋 导出 JSON</button>
       </div>
     </form>
+
+    <div class="publish-box" style="margin-top:28px;padding:18px;background:#f7f9f4;border:1px solid #d8ddd2;border-radius:12px">
+      <h3 style="margin:0 0 10px">🚀 一键发布到 GitHub</h3>
+      <p style="margin:0 0 10px;color:#667;font-size:.9rem">填写 GitHub Token（只保存在你的浏览器本地），点"发布到 GitHub"后，主页 1-2 分钟自动更新。</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <input type="password" id="tokenInput" placeholder="ghp_... GitHub Token" style="flex:1;min-width:260px;padding:10px 12px;border:1px solid #d8ddd2;border-radius:8px;font-family:inherit">
+        <label style="display:flex;align-items:center;gap:6px;font-size:.85rem;color:#667">
+          <input type="checkbox" id="autoPub" checked> 上传后自动发布
+        </label>
+        <button type="button" id="publishBtn" class="btn btn-primary" style="background:#2d6a4f">发布到 GitHub</button>
+      </div>
+    </div>
     <div style="margin-top:48px">
       <h2>📋 已有作品</h2>
       <ul id="workList" style="margin-top:18px;list-style:none;padding:0;"></ul>
