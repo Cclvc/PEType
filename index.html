@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PEType — 人宠摄影作品集</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">🐾 PEType</a>
+      <nav class="nav-links">
+        <a href="index.html" class="active">作品集</a>
+        <a href="admin.html">🎛️ 管理后台</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>人宠摄影</h1>
+    <p>记录你与毛孩子的美好瞬间</p>
+  </section>
+
+  <section class="filters-container">
+    <div class="filter-group">
+      <span class="filter-label">大类：</span>
+      <button class="filter-btn active" data-cat="all" data-type="main">全部</button>
+      <button class="filter-btn" data-cat="people-pet" data-type="main">🐾 人宠拍摄</button>
+      <button class="filter-btn" data-cat="pet-only" data-type="main">🐕 只拍毛孩子</button>
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">小类：</span>
+      <button class="filter-btn active" data-cat="all" data-type="sub">全部</button>
+      <button class="filter-btn" data-cat="outdoor" data-type="sub">🏔️ 户外拍摄</button>
+      <button class="filter-btn" data-cat="studio" data-type="sub">📸 棚拍</button>
+      <button class="filter-btn" data-cat="home-visit" data-type="sub">🚪 上门拍摄</button>
+    </div>
+  </section>
+
+  <section class="gallery" id="gallery">
+    <div class="gallery-empty" id="galleryEmpty" style="display:none;">
+      <p>😺 暂无符合筛选条件的作品</p>
+    </div>
+  </section>
+
+  <div class="lightbox" id="lightbox">
+    <span class="lightbox-close">&times;</span>
+    <img class="lightbox-img" id="lightboxImg" src="" alt="">
+    <div class="lightbox-caption" id="lightboxCaption"></div>
+    <span class="lightbox-prev" id="lightboxPrev">&#10094;</span>
+    <span class="lightbox-next" id="lightboxNext">&#10095;</span>
+  </div>
+
+  <footer class="footer">
+    <p>© 2026 PEType · 用镜头定格毛茸茸的幸福</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

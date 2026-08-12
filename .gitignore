@@ -1,0 +1,18 @@
+﻿# 系统文件
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 临时文件
+*.tmp
+*.bak
+
+# 大尺寸原始图（可选，如果有的话）
+images/originals/
+

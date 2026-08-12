@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PEType — 管理后台</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">🐾 PEType</a>
+      <nav class="nav-links">
+        <a href="index.html">作品集</a>
+        <a href="admin.html" class="active">🎛️ 管理后台</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="admin-container">
+    <h2>📤 上传新作品</h2>
+    <div class="msg" id="msg"></div>
+    <form class="admin-form" id="uploadForm">
+      <div class="form-group">
+        <label>作品图片</label>
+        <input type="file" id="imageInput" accept="image/*" required>
+        <div class="preview-area" id="previewArea"><img id="previewImg" src="" alt="预览"></div>
+      </div>
+      <div class="form-group">
+        <label>作品标题</label>
+        <input type="text" id="titleInput" placeholder="例如：夕阳下的金毛" required>
+      </div>
+      <div class="form-group">
+        <label>作品描述（可选）</label>
+        <textarea id="descInput" placeholder="简短描述这张作品…"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>大类</label>
+          <select id="mainCatSelect" required>
+            <option value="">请选择</option>
+            <option value="people-pet">🐾 人宠拍摄</option>
+            <option value="pet-only">🐕 只拍毛孩子</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>小类</label>
+          <select id="subCatSelect" required>
+            <option value="">请选择</option>
+            <option value="outdoor">🏔️ 户外拍摄</option>
+            <option value="studio">📸 棚拍</option>
+            <option value="home-visit">🚪 上门拍摄</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">上传作品</button>
+        <button type="button" id="exportBtn" class="btn btn-secondary">📋 导出 JSON 数据</button>
+      </div>
+    </form>
+    <div style="margin-top:40px">
+      <h2>📋 已有作品列表</h2>
+      <ul id="workList" style="margin-top:16px; list-style:none; padding:0;"></ul>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>© 2026 PEType · 管理后台</p>
+  </footer>
+
+  <script src="admin.js"></script>
+</body>
+</html>
