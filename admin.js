@@ -51,7 +51,7 @@
   function pv(){
     pg.innerHTML='';
     var f=fi.files; if(!f||!f.length) return;
-    if(f.length<6||f.length>9){ n('请选择 6-9 张照片','error'); fi.value=''; return; }
+    if(f.length<4||f.length>9){ n('请选择 4-9 张照片','error'); fi.value=''; return; }
     for(var i=0;i<f.length;i++){ (function(file){
       var r=new FileReader();
       r.onload=function(e){
@@ -211,7 +211,7 @@
   document.getElementById('uploadForm').addEventListener('submit',function(e){
     e.preventDefault();
     var f=fi.files;
-    if(!f||f.length<6||f.length>9){ n('请选择 6-9 张照片','error'); return; }
+    if(!f||f.length<4||f.length>9){ n('请选择 4-9 张照片','error'); return; }
     if(!ti.value.trim()){ n('请输入标题','error'); return; }
     if(!mc.value){ n('请选择类型','error'); return; }
     if(!sc.value){ n('请选择场景','error'); return; }
