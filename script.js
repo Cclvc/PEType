@@ -51,17 +51,20 @@
 
   function openDetail(idx){
     if(!list.length || idx<0 || idx>=list.length) return;
+    var fromData=(window.scrollY||0)+':'+mainCat+':'+subCat;
     current=list[idx];
     renderDetail();
     document.body.style.overflow='hidden';
     lightbox.classList.add('active');
     lightbox.scrollTop=0;
+    var back=document.getElementById('detailBack');
+    if(back && !back.dataset.from){ back.dataset.from=fromData; }
   }
-
   function renderDetail(){
     if(!current) return;
     var imgs=imgsOf(current);
     var h='<div class="detail-head">'
+      +'<button class="detail-back" id="detailBack">&#8592; 返回作品集</button>'
       +'<button class="detail-close" id="detailClose">&times;</button>'
       +'<h2 class="detail-title">'+esc(current.title)+'</h2>'
       +'<p class="detail-meta">'+catName(current.mainCat)+' · '+catName(current.subCat)+(current.desc?' — '+esc(current.desc):'')+'</p>'
@@ -73,12 +76,34 @@
     h+='</div>';
     lbBody.innerHTML=h;
     document.getElementById('detailClose').addEventListener('click',closeDetail);
+    document.getElementById('detailBack').addEventListener('click',goBack);
   }
 
   function closeDetail(){
     lightbox.classList.remove('active');
     document.body.style.overflow='';
     current=null;
+    var back=document.getElementById('detailBack');
+    if(back) back.removeAttribute('data-from');
+  }
+  function goBack(){
+    var back=document.getElementById('detailBack');
+    var from=back?back.getAttribute('data-from'):'';
+    closeDetail();
+    if(!from) return;
+    var parts=from.split(':');
+    var y=parseInt(parts[0],10)||0;
+    var m=parts[1], s=parts[2];
+    if(m && mainCat!==m){
+      mainCat=m;
+      mainBtns.forEach(function(b){ b.classList.toggle('active',b.dataset.cat===m); });
+    }
+    if(s && subCat!==s){
+      subCat=s;
+      subBtns.forEach(function(b){ b.classList.toggle('active',b.dataset.cat===s); });
+    }
+    render();
+    setTimeout(function(){ window.scrollTo(0,y); }, 50);
   }
 
   mainBtns.forEach(function(btn){
