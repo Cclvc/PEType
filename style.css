@@ -14,7 +14,7 @@
 .gallery-card:hover .card-img-wrap img{transform:scale(1.06)}
 .card-img-wrap{position:relative;width:100%;aspect-ratio:4/3;overflow:hidden;background:var(--bg2)}
 .card-img-wrap img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;transition:transform .55s ease}
-.lightbox{display:none;position:fixed;inset:0;background:#fff;z-index:9999;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.lightbox{display:none;position:fixed;inset:0;background:#faf7f2;z-index:9999;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .lightbox.active{display:block}
 .lightbox-body{max-width:960px;margin:0 auto;padding:32px 20px 80px}
 .detail-head{position:relative;text-align:center;padding:10px 0 28px}
@@ -22,7 +22,7 @@
 .detail-close:hover{background:var(--accent2)}
 .detail-title{font-size:1.7rem;font-weight:700;color:var(--text);margin-bottom:10px}
 .detail-meta{color:var(--text3);font-size:.95rem}
-.detail-imgs{display:flex;flex-direction:column;gap:36px;align-items:center}
+.detail-imgs{display:flex;flex-direction:column;gap:56px;align-items:center}
 .detail-fig{width:100%;max-width:860px;margin:0}
 .detail-fig img{width:100%;height:auto;display:block;border-radius:14px;box-shadow:0 8px 28px rgba(26,30,23,.12);background:var(--bg2)}
 .detail-fig figcaption{text-align:center;color:var(--text3);font-size:.85rem;margin-top:8px}
