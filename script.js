@@ -132,7 +132,7 @@
     if(ev.key==='Escape') closeDetail();
   });
 
-  var CDNS=["works.json?t="+Date.now(),"https://cdn.jsdelivr.net/gh/Cclvc/PEType@main/works.json?t="+Date.now()];
+  var CDNS=["works.json?t="+Date.now(),"https://raw.githubusercontent.com/Cclvc/PEType/main/works.json?t="+Date.now()];
   var ri=0;
   function loadWorks(){
     if(ri>=CDNS.length){ window.worksData=[]; render(); return; }
