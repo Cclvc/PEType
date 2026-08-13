@@ -1,9 +1,9 @@
-﻿const CACHE = 'petype-v1';
+const CACHE = 'petype-v2';
 const STATIC = [
   './',
   'index.html',
-  'style.css?v=20260815',
-  'script.js?v=20260815',
+  'style.css?v=20260820',
+  'script.js?v=20260820',
   'manifest.json',
   'icons/icon-192.png',
   'icons/icon-512.png'
