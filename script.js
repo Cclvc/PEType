@@ -72,6 +72,7 @@
       +'</div>';
     h+='<div class="detail-imgs">';
     imgs.forEach(function(src,i){
+      if(src.indexOf('/images/')>0){ src=src.replace('/images/','/images/large/').replace('.jpg','_l.jpg'); }
       h+='<figure class="detail-fig"><img src="'+esc(src)+'" alt="'+esc(current.title)+' '+(i+1)+'" loading="lazy"><figcaption>'+(i+1)+' / '+imgs.length+'</figcaption></figure>';
     });
     h+='</div>';
