@@ -60,6 +60,18 @@
   </footer>
 
   <script src="script.js?v=20260820"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(regs) {
+        regs.forEach(function(reg) { reg.unregister(); });
+      }).catch(function(){});
+      if (window.caches && caches.keys) {
+        caches.keys().then(function(keys) {
+          keys.forEach(function(k) { caches.delete(k); });
+        }).catch(function(){});
+      }
+    }
+  </script>
 
 </body>
 </html>
