@@ -1,0 +1,14 @@
+﻿{
+  "name": "PEType 人宠摄影作品集",
+  "short_name": "PEType",
+  "description": "记录你与毛孩子之间的每一个温柔瞬间",
+  "start_url": "index.html",
+  "scope": "/PEType/",
+  "display": "standalone",
+  "background_color": "#faf7f2",
+  "theme_color": "#6b8058",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
