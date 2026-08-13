@@ -37,7 +37,7 @@
     n.forEach(function(x,idx){
       var imgs=imgsOf(x);
       var cover=x.cover||imgs[0]||'';
-      if(cover.indexOf('.jpg')>0){ cover=cover.replace(/\.jpg$/,'_t.jpg'); }
+      if(cover.indexOf('.jpg')>0){ cover=cover.replace('/images/','/images/thumbs/').replace('.jpg','_t.jpg'); }
       var o=document.createElement('div');
       o.className='gallery-card';
       o.style.animationDelay=(idx*.08)+'s';
