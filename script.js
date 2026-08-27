@@ -12,7 +12,7 @@
   var subBtns=document.querySelectorAll('.filter-btn[data-type=sub]');
 
   function catName(v){
-    return {'people-pet':'🐾 人宠拍摄','pet-only':'🐕 只拍毛孩子',outdoor:'🏔️ 户外拍摄',studio:'📸 棚拍','home-visit':'🚪 上门拍摄'}[v]||v;
+    return {'people-pet':'馃惥 浜哄疇鎷嶆憚','pet-only':'馃悤 鍙媿姣涘瀛?,outdoor:'馃彅锔?鎴峰鎷嶆憚',studio:'馃摳 妫氭媿','home-visit':'馃毆 涓婇棬鎷嶆憚'}[v]||v;
   }
   function esc(s){
     return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -21,6 +21,67 @@
     if(w && Array.isArray(w.images) && w.images.length) return w.images;
     if(w && w.src) return [w.src];
     return [];
+  }
+  function isDataUrl(s){
+    return typeof s==='string' && s.indexOf('data:')===0;
+  }
+  function fileOf(url){
+    var m=/([^/?#]+.[a-z0-9]+)(?:[?#].*)?$/i.exec(url);
+    return m?m[1]:'';
+  }
+  function stripVariant(name){
+    return name.replace(/_t\.jpg$/i,'.jpg').replace(/_l\.jpg$/i,'.jpg');
+  }
+  function variantOf(name, kind){
+    var base=stripVariant(name);
+    if((kind==='thumb'||kind==='large') && /\.jpg$/i.test(base)){
+      return base.replace(/\.jpg$/i, kind==='thumb'?'_t.jpg':'_l.jpg');
+    }
+    return base;
+  }
+  function srcPath(url){
+    if(isDataUrl(url)) return url;
+    var m=/(images\/[^\/?#]+\.[a-z0-9]+)(?:[?#].*)?$/i.exec(url);
+    return m?m[1]:(url||'');
+  }
+  function imgSrc(url, kind){
+    if(isDataUrl(url)) return url;
+    var rel=srcPath(url);
+    var name=fileOf(rel);
+    if(!name) return url;
+    var vn=variantOf(name, kind);
+    if(kind==='thumb') return 'images/thumbs/'+vn;
+    if(kind==='large') return 'images/large/'+vn;
+    return 'images/'+name;
+  }
+  function onImgError(img){
+    var kind=img.getAttribute('data-kind');
+    var url=img.getAttribute('data-src')||'';
+    if(!kind || isDataUrl(url)) return;
+    var name=fileOf(srcPath(url));
+    if(!name) return;
+    var fallback='images/'+stripVariant(name);
+    if(img.src.indexOf(fallback)>=0) return;
+    img.src=fallback;
+  }
+  function onImgLoad(img){
+    var n=img.naturalWidth||0;
+    if(n>0 && n<40){
+      var kind=img.getAttribute('data-kind');
+      var url=img.getAttribute('data-src')||'';
+      img.src=imgSrc(url, kind);
+    }
+  }
+  function makeImg(src, kind, alt){
+    var img=document.createElement('img');
+    img.src=imgSrc(src, kind);
+    img.alt=alt||'';
+    img.loading='lazy';
+    img.setAttribute('data-kind', kind);
+    img.setAttribute('data-src', src);
+    img.addEventListener('error', function(){ onImgError(img); });
+    img.addEventListener('load', function(){ onImgLoad(img); });
+    return img;
   }
 
   function render(){
@@ -37,15 +98,37 @@
     n.forEach(function(x,idx){
       var imgs=imgsOf(x);
       var cover=x.cover||imgs[0]||'';
-      if(cover.indexOf('.jpg')>0){ cover=cover.replace('/images/','/images/thumbs/').replace('.jpg','_t.jpg'); }
       var o=document.createElement('div');
       o.className='gallery-card';
       o.style.animationDelay=(idx*.08)+'s';
-      var countBadge=imgs.length>1?('<span class="card-count">'+imgs.length+' 张</span>'):'';
-      o.innerHTML='<div class="card-img-wrap"><img src="'+esc(cover)+'" alt="'+esc(x.title)+'" loading="lazy"><div class="card-overlay"></div>'+countBadge+'</div>'
-        +'<div class="card-info"><div class="card-title">'+esc(x.title)+'</div>'
-        +'<div class="card-meta"><span class="card-tag">'+catName(x.mainCat)+'</span><span class="card-tag">'+catName(x.subCat)+'</span></div></div>';
-      o.addEventListener('click',function(){ openDetail(idx); });
+
+      var wrap=document.createElement('div');
+      wrap.className='card-img-wrap';
+      wrap.appendChild(makeImg(cover, 'thumb', x.title));
+      if(imgs.length>1){
+        var badge=document.createElement('span');
+        badge.className='card-count';
+        badge.textContent=imgs.length+' 寮?;
+        wrap.appendChild(badge);
+      }
+      var info=document.createElement('div');
+      info.className='card-info';
+      var title=document.createElement('div');
+      title.className='card-title';
+      title.textContent=x.title;
+      var meta=document.createElement('div');
+      meta.className='card-meta';
+      var t1=document.createElement('span');
+      t1.className='card-tag';
+      t1.textContent=catName(x.mainCat);
+      var t2=document.createElement('span');
+      t2.className='card-tag';
+      t2.textContent=catName(x.subCat);
+      meta.appendChild(t1); meta.appendChild(t2);
+      info.appendChild(title); info.appendChild(meta);
+
+      o.appendChild(wrap); o.appendChild(info);
+      o.addEventListener('click', function(){ openDetail(idx); });
       gallery.appendChild(o);
     });
   }
@@ -64,21 +147,41 @@
   function renderDetail(){
     if(!current) return;
     var imgs=imgsOf(current);
-    var h='<div class="detail-head">'
-      +'<button class="detail-back" id="detailBack">&#8592; 返回作品集</button>'
-      +'<button class="detail-close" id="detailClose">&times;</button>'
-      +'<h2 class="detail-title">'+esc(current.title)+'</h2>'
-      +'<p class="detail-meta">'+catName(current.mainCat)+' · '+catName(current.subCat)+(current.desc?' — '+esc(current.desc):'')+'</p>'
-      +'</div>';
-    h+='<div class="detail-imgs">';
+    lbBody.innerHTML='';
+    var head=document.createElement('div');
+    head.className='detail-head';
+    var back=document.createElement('button');
+    back.className='detail-back';
+    back.id='detailBack';
+    back.innerHTML='&#8592; 杩斿洖浣滃搧闆?;
+    var close=document.createElement('button');
+    close.className='detail-close';
+    close.id='detailClose';
+    close.innerHTML='&times;';
+    var title=document.createElement('h2');
+    title.className='detail-title';
+    title.textContent=current.title;
+    var meta=document.createElement('p');
+    meta.className='detail-meta';
+    meta.textContent=catName(current.mainCat)+' 路 '+catName(current.subCat)+(current.desc?' 鈥?'+current.desc:'');
+    head.appendChild(back); head.appendChild(close); head.appendChild(title); head.appendChild(meta);
+
+    var wrap=document.createElement('div');
+    wrap.className='detail-imgs';
     imgs.forEach(function(src,i){
-      if(src.indexOf('/images/')>0){ src=src.replace('/images/','/images/large/').replace('.jpg','_l.jpg'); }
-      h+='<figure class="detail-fig"><img src="'+esc(src)+'" alt="'+esc(current.title)+' '+(i+1)+'" loading="lazy"><figcaption>'+(i+1)+' / '+imgs.length+'</figcaption></figure>';
+      var fig=document.createElement('figure');
+      fig.className='detail-fig';
+      fig.appendChild(makeImg(src, 'large', current.title+' '+(i+1)));
+      var cap=document.createElement('figcaption');
+      cap.textContent=(i+1)+' / '+imgs.length;
+      fig.appendChild(cap);
+      wrap.appendChild(fig);
     });
-    h+='</div>';
-    lbBody.innerHTML=h;
-    document.getElementById('detailClose').addEventListener('click',closeDetail);
-    document.getElementById('detailBack').addEventListener('click',goBack);
+
+    lbBody.appendChild(head);
+    lbBody.appendChild(wrap);
+    document.getElementById('detailClose').addEventListener('click', closeDetail);
+    document.getElementById('detailBack').addEventListener('click', goBack);
   }
 
   function closeDetail(){
@@ -109,7 +212,7 @@
   }
 
   mainBtns.forEach(function(btn){
-    btn.addEventListener('click',function(){
+    btn.addEventListener('click', function(){
       mainBtns.forEach(function(b){ b.classList.remove('active'); });
       btn.classList.add('active');
       mainCat=btn.dataset.cat;
@@ -117,7 +220,7 @@
     });
   });
   subBtns.forEach(function(btn){
-    btn.addEventListener('click',function(){
+    btn.addEventListener('click', function(){
       subBtns.forEach(function(b){ b.classList.remove('active'); });
       btn.classList.add('active');
       subCat=btn.dataset.cat;
@@ -125,10 +228,10 @@
     });
   });
 
-  lightbox.addEventListener('click',function(ev){
+  lightbox.addEventListener('click', function(ev){
     if(ev.target===lightbox) closeDetail();
   });
-  document.addEventListener('keydown',function(ev){
+  document.addEventListener('keydown', function(ev){
     if(!lightbox.classList.contains('active')) return;
     if(ev.key==='Escape') closeDetail();
   });

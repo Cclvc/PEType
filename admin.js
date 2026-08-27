@@ -1,6 +1,6 @@
 (function(){
   var SK='petype_works', TOK='petype_token', REPO='Cclvc/PEType', BRANCH='main', FILE='works.json', IMGDIR='images';
-  var CDNP='https://cdn.jsdelivr.net/gh/'+REPO+'@'+BRANCH+'/';
+  var CDNP='';
   var msg=document.getElementById('msg'), fi=document.getElementById('imageInput'), pg=document.getElementById('previewGrid'),
       ti=document.getElementById('titleInput'), di=document.getElementById('descInput'),
       mc=document.getElementById('mainCatSelect'), sc=document.getElementById('subCatSelect'),
@@ -124,7 +124,7 @@
     r.setRequestHeader('Content-Type','application/json');
     r.onload=function(){
       if(r.status>=200 && r.status<300){
-        var newUrl=CDNP+IMGDIR+'/'+name;
+        var newUrl=IMGDIR+'/'+name;
         ws[item.wi].images[item.ii]=newUrl;
         if(ws[item.wi].cover===item.src){ ws[item.wi].cover=newUrl; }
         next();
