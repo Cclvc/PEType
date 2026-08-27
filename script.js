@@ -12,7 +12,7 @@
   var subBtns=document.querySelectorAll('.filter-btn[data-type=sub]');
 
   function catName(v){
-    return {'people-pet':'馃惥 浜哄疇鎷嶆憚','pet-only':'馃悤 鍙媿姣涘瀛?,outdoor:'馃彅锔?鎴峰鎷嶆憚',studio:'馃摳 妫氭媿','home-visit':'馃毆 涓婇棬鎷嶆憚'}[v]||v;
+    return {'people-pet':'🐾 人宠拍摄','pet-only':'🐕 只拍毛孩子',outdoor:'🏔️ 户外拍摄',studio:'📸 棚拍','home-visit':'🚪 上门拍摄'}[v]||v;
   }
   function esc(s){
     return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -108,7 +108,7 @@
       if(imgs.length>1){
         var badge=document.createElement('span');
         badge.className='card-count';
-        badge.textContent=imgs.length+' 寮?;
+        badge.textContent=imgs.length+' 张';
         wrap.appendChild(badge);
       }
       var info=document.createElement('div');
@@ -153,7 +153,7 @@
     var back=document.createElement('button');
     back.className='detail-back';
     back.id='detailBack';
-    back.innerHTML='&#8592; 杩斿洖浣滃搧闆?;
+    back.innerHTML='&#8592; 返回作品集';
     var close=document.createElement('button');
     close.className='detail-close';
     close.id='detailClose';
@@ -163,7 +163,7 @@
     title.textContent=current.title;
     var meta=document.createElement('p');
     meta.className='detail-meta';
-    meta.textContent=catName(current.mainCat)+' 路 '+catName(current.subCat)+(current.desc?' 鈥?'+current.desc:'');
+    meta.textContent=catName(current.mainCat)+' · '+catName(current.subCat)+(current.desc?' — '+current.desc:'');
     head.appendChild(back); head.appendChild(close); head.appendChild(title); head.appendChild(meta);
 
     var wrap=document.createElement('div');
